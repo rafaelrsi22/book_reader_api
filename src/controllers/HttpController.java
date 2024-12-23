@@ -9,6 +9,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HttpController {
     private static final Map<String, HttpRouteHandler> routes = new HashMap<>();
@@ -68,14 +70,30 @@ public class HttpController {
     }
 
     private static void handleRoute(String method, String path, HttpRequest request, HttpResponse response) throws Exception {
-        HttpRouteHandler handler = routes.get(method + " " + path);
+        for (Map.Entry<String, HttpRouteHandler> entry : routes.entrySet()) {
+            String route = entry.getKey();
+            String routeMethod = route.split(" ")[0];
+            String routePath = route.split(" ")[1];
 
-        System.out.println(request.method + " " + request.path);
-
-        if (handler != null) {
-            handler.handle(request, response);
-        } else {
-            response.setStatus(404).sendString("404 Not Found");
+            if (method.equals(routeMethod) && pathMatchesRoute(path, routePath, request)) {
+                entry.getValue().handle(request, response);
+                return;
+            }
         }
+
+        response.setStatus(404).sendString("404 Not Found");
+    }
+
+    private static boolean pathMatchesRoute(String requestPath, String routePath, HttpRequest request) {
+        String regex = routePath.replaceAll(":[^/]+", "([^/]+)");
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(requestPath);
+
+        if (matcher.matches()) {
+            request.parseParams(routePath);
+            return true;
+        }
+
+        return requestPath.equals(routePath);
     }
 }
