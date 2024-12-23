@@ -70,6 +70,12 @@ public class HttpController {
     }
 
     private static void handleRoute(String method, String path, HttpRequest request, HttpResponse response) throws Exception {
+        HttpRouteHandler handler = routes.get(method + " " + path);
+        if (handler != null) {
+            handler.handle(request, response);
+            return;
+        }
+
         for (Map.Entry<String, HttpRouteHandler> entry : routes.entrySet()) {
             String route = entry.getKey();
             String routeMethod = route.split(" ")[0];
