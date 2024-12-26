@@ -2,6 +2,7 @@ package http;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class HttpResponse {
     private final BufferedWriter writer;
@@ -32,9 +33,11 @@ public class HttpResponse {
     }
 
     public void sendJson(String jsonString) throws IOException {
+        byte[] jsonDataBytes = jsonString.getBytes(StandardCharsets.UTF_8);
+
         writer.write("HTTP/1.1 " + status + " OK\r\n");
-        writer.write("Content-Type: application/json\r\n");
-        writer.write("Content-Length: " + jsonString.length() + "\r\n");
+        writer.write("Content-Type: application/json; charset=UTF-8\r\n");
+        writer.write("Content-Length: " + jsonDataBytes.length + "\r\n");
         writer.write("\r\n");
         writer.write(jsonString);
         writer.flush();
