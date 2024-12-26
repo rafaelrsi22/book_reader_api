@@ -2,7 +2,7 @@ package main;
 
 import controllers.DataBaseController;
 import controllers.HttpController;
-import routes.RouteConfig;
+import routes.BooksRouter;
 
 public class Main {
     public static final int SERVER_PORT = 3000;
@@ -18,7 +18,7 @@ public class Main {
         try {
             dataBaseController.connect(DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD);
             HttpController.serve(SERVER_PORT);
-            RouteConfig.init();
+            BooksRouter.init();
         } catch(Exception e) {
             e.printStackTrace();
             System.out.println("Error at starting server API");
